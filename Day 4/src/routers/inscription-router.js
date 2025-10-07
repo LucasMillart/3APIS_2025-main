@@ -1,24 +1,23 @@
 import express from "express";
+import bcrypt from "bcrypt";
 
 import { User } from "../mongo.js";
 
 const router = express.Router();
 
-router.get("/", async (request, response) =>
+router.post('/', async (request, response) =>
 {
-  const users = await User.find();
-  response.status(200).json(users);
-});
 
-router.get("/:id", async (request, response) =>
-{
-  const user = await User.findById(request.params.id);
-  response.status(200).json(user);
-});
+  const { email, password } = request.body;
+  const hashPassword = await bcrypt.hash(password, 10);
+  console.log(hashPassword);
+  const existingUser = await User.findOne({ email })
+  if (existingUser)
+  {
+    return response.status(409).json({ message: "Cette email est déjà utilisé !" })
+  }
 
-router.post('/', (request, response) =>
-{
-  const newUser = User({ ...request.body });
+  const newUser = User({ ...request.body, password: hashPassword });
   newUser.save()
     .then(
       user =>
