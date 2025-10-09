@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 
 import { User } from "../mongo.js";
+import { isAdmin } from "../middlewares/users.js";
 
 const router = express.Router();
 
@@ -54,7 +55,7 @@ router.put("/:id", async (request, response) =>
   }
 });
 
-router.delete("/:id", async (request, response) =>
+router.delete("/:id", isAdmin, async (request, response) =>
 {
   try
   {
